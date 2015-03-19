@@ -3,7 +3,28 @@ defmodule RFC3986Test do
   doctest RFC3986
   require Logger
 
-  test "common uris" do
+  test "generic full" do
+    assert_uri(
+      'http://user:pass@elixir-lang.org:8812/docs/stable/elixir/Enum.html?k1%2A=v1&k2=v2#fragment/other_fragment%2F??',
+      %{
+        scheme: 'http',
+        host_type: :reg_name,
+        host: 'elixir-lang.org',
+        port: 8812,
+        segments: ['docs', 'stable', 'elixir', 'Enum.html'],
+        query_string: %{'k1%2A' => 'v1', 'k2' => 'v2'},
+        fragment: 'fragment/other_fragment%2F??',
+        userinfo: 'user:pass',
+        username: 'user',
+        password: 'pass',
+        query: 'k1%2A=v1&k2=v2',
+        type: :authority,
+        text: ''
+      }
+    )
+  end
+
+  test "empty path" do
     assert_uri(
       'http:',
       %{
@@ -12,7 +33,9 @@ defmodule RFC3986Test do
         text: ''
       }
     )
+  end
 
+  test "absolute path" do
     assert_uri(
       'http:/',
       %{
@@ -31,7 +54,9 @@ defmodule RFC3986Test do
         type: :path_absolute
       }
     )
+  end
 
+  test "path rootless" do
     assert_uri(
       'http:a',
       %{
@@ -41,7 +66,9 @@ defmodule RFC3986Test do
         type: :path_rootless
       }
     )
+  end
 
+  test "full with domain name" do
     assert_uri(
       'http://user:pass@elixir-lang.org:8812/docs/stable/elixir/Enum.html?k1%2A=v1&k2=v2#fragment',
       %{
@@ -60,7 +87,33 @@ defmodule RFC3986Test do
         text: ''
       }
     )
+  end
 
+  test "ipv4" do
+    assert_uri(
+      'http://192.168.0.1',
+      %{
+        scheme: 'http',
+        host_type: :ipv4,
+        host: '192.168.0.1',
+        type: :authority,
+        text: ''
+      }
+    )
+
+    assert_uri(
+      'http://192.168.0.1/',
+      %{
+        scheme: 'http',
+        host_type: :ipv4,
+        host: '192.168.0.1',
+        type: :authority,
+        text: ''
+      }
+    )
+  end
+
+  test "full with ipv4" do
     assert_uri(
       'http://user:pass@192.168.0.1:8812/docs/stable/elixir/Enum.html?k1%2A=v1&k2=v2#fragment',
       %{
@@ -74,6 +127,48 @@ defmodule RFC3986Test do
         userinfo: 'user:pass',
         username: 'user',
         password: 'pass',
+        query: 'k1%2A=v1&k2=v2',
+        type: :authority,
+        text: ''
+      }
+    )
+  end
+
+  test "full with ipv future" do
+    assert_uri(
+      'http://user:pass@[v1.fe80::a+en1]:8812/docs/stable/elixir/Enum.html?k1%2A=v1&k2=v2#fragment',
+      %{
+        scheme: 'http',
+        host_type: :ipv_future,
+        host: '[v1.fe80::a+en1]',
+        port: 8812,
+        segments: ['docs', 'stable', 'elixir', 'Enum.html'],
+        query_string: %{'k1%2A' => 'v1', 'k2' => 'v2'},
+        fragment: 'fragment',
+        userinfo: 'user:pass',
+        username: 'user',
+        password: 'pass',
+        query: 'k1%2A=v1&k2=v2',
+        type: :authority,
+        text: ''
+      }
+    )
+  end
+
+  test "no user info" do
+    assert_uri(
+      'http://[v1.fe80::a+en1]:8812/docs/stable/elixir/Enum.html?k1%2A=v1&k2=v2#fragment',
+      %{
+        scheme: 'http',
+        host_type: :ipv_future,
+        host: '[v1.fe80::a+en1]',
+        port: 8812,
+        segments: ['docs', 'stable', 'elixir', 'Enum.html'],
+        query_string: %{'k1%2A' => 'v1', 'k2' => 'v2'},
+        fragment: 'fragment',
+        userinfo: nil,
+        username: nil,
+        password: nil,
         query: 'k1%2A=v1&k2=v2',
         type: :authority,
         text: ''
