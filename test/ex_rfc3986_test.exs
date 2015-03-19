@@ -1,0 +1,33 @@
+defmodule RFC3986Test do
+  use ExUnit.Case
+  doctest RFC3986
+  require Logger
+
+  test "common uris" do
+    assert_uri(
+      'http://user:pass@elixir-lang.org/docs/stable/elixir/Enum.html?k1%2A=v1&k2=v2#fragment',
+      %{
+        scheme: 'http',
+        host_type: :reg_name,
+        segments: ['docs', 'stable', 'elixir', 'Enum.html'],
+        query_string: %{'k1%2A' => 'v1', 'k2' => 'v2'},
+        fragment: 'fragment',
+        userinfo: 'user:pass',
+        username: 'user',
+        password: 'pass',
+        query: 'k1%2A=v1&k2=v2'
+      }
+    )
+  end
+
+  defp assert_uri(uri, props) do
+    Logger.debug "Testing: #{inspect uri}"
+    result = RFC3986.parse uri
+    Logger.debug "Result: #{inspect result}"
+    nil = result.error
+    Enum.each props, fn({k, v}) ->
+      Logger.debug "Asserting: #{k} = #{inspect v}"
+      ^v = result[k]
+    end
+  end
+end
