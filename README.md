@@ -5,14 +5,14 @@ An URI parser trying to be strictly compatible with [RFC3986](https://tools.ietf
 
 ## Example
 
-    iex> RFC3986.parse 'http://user:pass@elixir-lang.org/docs/stable/elixir/Enum.html?k1%2A=v1&k2=v2#fragment'
+    iex> RFC3986.parse 'http://user:pass@elixir-lang.org:8812/docs/stable/elixir/Enum.html?k1%2A=v1&k2=v2#fragment'
     %{
         error: nil,
         fragment: 'fragment',
         host: 'elixir-lang.org',
         host_type: :reg_name,
         password: 'pass',
-        port: nil,
+        port: 8812,
         query: 'k1%2A=v1&k2=v2',
         query_string: %{'k1%2A' => 'v1', 'k2' => 'v2'},
         scheme: 'http',

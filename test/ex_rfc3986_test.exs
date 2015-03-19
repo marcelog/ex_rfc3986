@@ -5,10 +5,11 @@ defmodule RFC3986Test do
 
   test "common uris" do
     assert_uri(
-      'http://user:pass@elixir-lang.org/docs/stable/elixir/Enum.html?k1%2A=v1&k2=v2#fragment',
+      'http://user:pass@elixir-lang.org:8812/docs/stable/elixir/Enum.html?k1%2A=v1&k2=v2#fragment',
       %{
         scheme: 'http',
         host_type: :reg_name,
+        port: 8812,
         segments: ['docs', 'stable', 'elixir', 'Enum.html'],
         query_string: %{'k1%2A' => 'v1', 'k2' => 'v2'},
         fragment: 'fragment',
