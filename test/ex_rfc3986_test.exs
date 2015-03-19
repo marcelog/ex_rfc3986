@@ -5,6 +5,44 @@ defmodule RFC3986Test do
 
   test "common uris" do
     assert_uri(
+      'http:',
+      %{
+        scheme: 'http',
+        type: :path_empty,
+        text: ''
+      }
+    )
+
+    assert_uri(
+      'http:/',
+      %{
+        scheme: 'http',
+        text: '',
+        type: :path_absolute
+      }
+    )
+
+    assert_uri(
+      'http:/a',
+      %{
+        scheme: 'http',
+        text: '',
+        segments: ['a'],
+        type: :path_absolute
+      }
+    )
+
+    assert_uri(
+      'http:a',
+      %{
+        scheme: 'http',
+        text: '',
+        segments: ['a'],
+        type: :path_rootless
+      }
+    )
+
+    assert_uri(
       'http://user:pass@elixir-lang.org:8812/docs/stable/elixir/Enum.html?k1%2A=v1&k2=v2#fragment',
       %{
         scheme: 'http',
@@ -17,7 +55,9 @@ defmodule RFC3986Test do
         userinfo: 'user:pass',
         username: 'user',
         password: 'pass',
-        query: 'k1%2A=v1&k2=v2'
+        query: 'k1%2A=v1&k2=v2',
+        type: :authority,
+        text: ''
       }
     )
 
@@ -34,7 +74,9 @@ defmodule RFC3986Test do
         userinfo: 'user:pass',
         username: 'user',
         password: 'pass',
-        query: 'k1%2A=v1&k2=v2'
+        query: 'k1%2A=v1&k2=v2',
+        type: :authority,
+        text: ''
       }
     )
   end
