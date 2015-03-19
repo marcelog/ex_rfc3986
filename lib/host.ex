@@ -162,6 +162,11 @@ defmodule RFC3986.Host do
     {[?1, char1], rest}
   end
 
+  defp dec_octet([char1, char2|rest]) when
+    char1 >= ?1 and char1 <= ?9 and char2 >= ?0 and char2 <= ?9 do
+    {[char1, char2], rest}
+  end
+
   defp dec_octet([char|rest]) when char >= ?0 and char <= ?9 do
     {[char], rest}
   end
