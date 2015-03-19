@@ -5,19 +5,19 @@ defmodule RFC3986Test do
 
   test "generic full" do
     assert_uri(
-      'http://user:pass@elixir-lang.org:8812/docs/stable/elixir/Enum.html?k1%2A=v1&k2=v2#fragment/other_fragment%2F??',
+      'http://user:pass@elixir-lang.org:8812/docs/stable/elixir/Enum.html?k1?%2A=v1&k2=v2&k3&k4#fragment/other_fragment%2F??',
       %{
         scheme: 'http',
         host_type: :reg_name,
         host: 'elixir-lang.org',
         port: 8812,
         segments: ['docs', 'stable', 'elixir', 'Enum.html'],
-        query_string: %{'k1%2A' => 'v1', 'k2' => 'v2'},
+        query_string: %{'k1?%2A' => 'v1', 'k2' => 'v2', 'k3' => nil, 'k4' => nil},
         fragment: 'fragment/other_fragment%2F??',
         userinfo: 'user:pass',
         username: 'user',
         password: 'pass',
-        query: 'k1%2A=v1&k2=v2',
+        query: 'k1?%2A=v1&k2=v2&k3&k4',
         type: :authority,
         text: ''
       }
