@@ -9,6 +9,24 @@ defmodule RFC3986Test do
       %{
         scheme: 'http',
         host_type: :reg_name,
+        host: 'elixir-lang.org',
+        port: 8812,
+        segments: ['docs', 'stable', 'elixir', 'Enum.html'],
+        query_string: %{'k1%2A' => 'v1', 'k2' => 'v2'},
+        fragment: 'fragment',
+        userinfo: 'user:pass',
+        username: 'user',
+        password: 'pass',
+        query: 'k1%2A=v1&k2=v2'
+      }
+    )
+
+    assert_uri(
+      'http://user:pass@192.168.0.1:8812/docs/stable/elixir/Enum.html?k1%2A=v1&k2=v2#fragment',
+      %{
+        scheme: 'http',
+        host_type: :ipv4,
+        host: '192.168.0.1',
         port: 8812,
         segments: ['docs', 'stable', 'elixir', 'Enum.html'],
         query_string: %{'k1%2A' => 'v1', 'k2' => 'v2'},
