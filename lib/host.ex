@@ -61,8 +61,168 @@ defmodule RFC3986.Host do
     state
   end
 
-  defp ipv6_address(_state) do
-    raise "ipv6 not supported yet"
+  defp ipv6_address(state = %{text: [?[|rest]}) do
+    {hs1, rest} = hextets rest, 6
+    case {hs1, rest} do
+      {[_,_,_,_,_,_], [?:, ?:|rest]} -> case h16 rest do
+        {h, [?]|rest]} -> ret_ipv6 state, rest, hs1, [h]
+        _ -> ret_inv_ipv6 state, rest
+      end
+      {hs1 = [_,_,_,_,_,_], rest} -> case h16 rest do
+        {hs2, [?:,?:,?]|rest]} -> ret_ipv6 state, rest, (hs1 ++ [hs2]), []
+        _hs2 -> case ls32 rest do
+          {hs2, [?]|rest]} -> ret_ipv6 state, rest, hs1 ++ hs2, nil
+          _ -> ret_inv_ipv6 state, rest
+        end
+      end
+      {[_,_,_,_,_], [?:,?:|rest]} -> case ls32 rest do
+        {hs2, [?]|rest]} -> ret_ipv6 state, rest, hs1, hs2
+        _ -> ret_inv_ipv6 state, rest
+      end
+      {[_,_,_,_], [?:,?:|rest]} -> case hextets rest, 1 do
+        {[hs2], rest} -> case ls32 rest do
+          {hs3, [?]|rest]} -> ret_ipv6 state, rest, hs1, [hs2|hs3]
+          _ -> ret_inv_ipv6 state, rest
+        end
+        _ -> ret_inv_ipv6 state, rest
+      end
+      {[_,_,_], [?:,?:|rest]} -> case hextets rest, 2 do
+        {[_,_] = hs2, rest} -> case ls32 rest do
+          {hs3, [?]|rest]} -> ret_ipv6 state, rest, hs1, (hs2 ++ hs3)
+          _ -> ret_inv_ipv6 state, rest
+        end
+        _ -> ret_inv_ipv6 state, rest
+      end
+      {[_,_], [?:,?:|rest]} -> case hextets rest, 3 do
+        {[_,_,_] = hs2, rest} -> case ls32 rest do
+          {hs3, [?]|rest]} -> ret_ipv6 state, rest, hs1, (hs2 ++ hs3)
+          _ -> ret_inv_ipv6 state, rest
+        end
+        _ -> ret_inv_ipv6 state, rest
+      end
+      {[_], [?:,?:|rest]} -> case hextets rest, 4 do
+        {[_,_,_,_] = hs2, rest} -> case ls32 rest do
+          {hs3, [?]|rest]} -> ret_ipv6 state, rest, hs1, (hs2 ++ hs3)
+          _ -> ret_inv_ipv6 state, rest
+        end
+        _ -> ret_inv_ipv6 state, rest
+      end
+      {[], [?:,?:,?]|rest]} -> ret_ipv6 state, rest, [], []
+      {[], [?:,?:|rest]} -> case hextets rest, 8 do
+        {[_,_,_,_,_,_,_,_] = hs2, [?]|rest]} -> ret_ipv6 state, rest, [], hs2
+        {[_,_,_,_,_,_,_] = hs2, [?]|rest]} -> ret_ipv6 state, rest, [], hs2
+        {[_,_,_,_,_,_] = hs2, [?]|rest]} -> ret_ipv6 state, rest, [], hs2
+        {[_,_,_,_,_] = hs2, [?]|rest]} -> ret_ipv6 state, rest, [], hs2
+        {[_,_,_,_,_] = hs2, rest} -> case ls32 rest do
+          {hs3, [?]|rest]} -> ret_ipv6 state, rest, [], (hs2 ++ hs3)
+          _ -> ret_inv_ipv6 state, rest
+        end
+        {[_,_,_,_] = hs2, [?]|rest]} -> ret_ipv6 state, rest, [], hs2
+        {[_,_,_,_] = hs2, rest} -> case ls32 rest do
+          {hs3, [?]|rest]} -> ret_ipv6 state, rest, [], (hs2 ++ hs3)
+          _ -> ret_inv_ipv6 state, rest
+        end
+        {[_,_,_] = hs2, [?]|rest]} -> ret_ipv6 state, rest, [], hs2
+        {[_,_,_] = hs2, rest} -> case ls32 rest do
+          {hs3, [?]|rest]} -> ret_ipv6 state, rest, [], (hs2 ++ hs3)
+          _ -> ret_inv_ipv6 state, rest
+        end
+        {[_,_] = hs2, [?]|rest]} -> ret_ipv6 state, rest, [], hs2
+        {[_,_] = hs2, rest} -> case ls32 rest do
+          {hs3, [?]|rest]} -> ret_ipv6 state, rest, [], (hs2 ++ hs3)
+          _ -> ret_inv_ipv6 state, rest
+        end
+        {[_] = hs2, [?]|rest]} -> ret_ipv6 state, rest, [], hs2
+        {[_] = hs2, rest} -> case ls32 rest do
+          {hs3, [?]|rest]} -> ret_ipv6 state, rest, [], (hs2 ++ hs3)
+          _ -> ret_inv_ipv6 state, rest
+        end
+        {[] = hs2, [?]|rest]} -> ret_ipv6 state, rest, [], hs2
+        {[], rest} -> case ls32 rest do
+          {hs2, [?]|rest]} -> ret_ipv6 state, rest, [], hs2
+          _ -> ret_inv_ipv6 state, rest
+        end
+      end
+    end
+  end
+
+  defp ret_inv_ipv6(state, rest) do
+    %{state | error: {:invalid_ipv6, rest}}
+  end
+
+  defp ret_ipv6(state, rest, hextets1, nil) do
+    h1 = to_char_list(Enum.join hextets1, ":")
+    %{state |
+      host: h1,
+      host_type: :ipv6,
+      text: rest
+    }
+  end
+
+  defp ret_ipv6(state, rest, hextets1, hextets2) do
+    h1 = to_char_list(Enum.join hextets1, ":")
+    h2 = to_char_list(Enum.join hextets2, ":")
+    %{state |
+      host: h1 ++ '::' ++ h2,
+      host_type: :ipv6,
+      text: rest
+    }
+  end
+
+  # ls32          = ( h16 ":" h16 ) / IPv4address
+  defp ls32(text) do
+    case hextets text do
+      result = {[_, _], [?]|_rest]} -> result
+      _ -> case octets text do
+        {ip, []} when ip !== nil -> {[ip], []}
+        {ip, [?]|_] = rest} when ip !== nil -> {[ip], rest}
+        _ -> nil
+      end
+    end
+  end
+
+  defp hextets(text, max \\ :all) do
+    hextets text, [], max
+  end
+
+  defp hextets(text, acc, max) when max === length(acc) do
+    {Enum.reverse(acc), text}
+  end
+
+  defp hextets(text, acc, max) do
+    case h16 text do
+      {[], _} -> {Enum.reverse(acc), text}
+      {h, [?:, ?:|_rest] = text} -> hextets text, [h|acc], max
+      {h, [?:|rest]} -> hextets rest, [h|acc], max
+      {h, []} -> {Enum.reverse([h|acc]), []}
+      {h, [?]|_] = rest} -> {Enum.reverse([h|acc]), rest}
+      {_h, _rest} -> {Enum.reverse(acc), text}
+    end
+  end
+
+  # h16           = 1*4HEXDIG
+  defp h16([]) do
+    {[], []}
+  end
+
+  defp h16(text) do
+    h16 text, []
+  end
+
+  defp h16([], acc) do
+    {Enum.reverse(acc), []}
+  end
+
+  defp h16(text, acc) when length(acc) == 4 do
+    {Enum.reverse(acc), text}
+  end
+
+  defp h16([char|rest] = text, acc) do
+    if Generic.hex_digit?(char) do
+      h16 rest, [char|acc]
+    else
+      {Enum.reverse(acc), text}
+    end
   end
 
   # IPvFuture     = "v" 1*HEXDIG "." 1*( unreserved / sub-delims / ":" )
