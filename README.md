@@ -23,6 +23,3 @@ An URI parser trying to be strictly compatible with [RFC3986](https://tools.ietf
         username: 'user'
       }
 
-## TODO
-
- * Implement IPv6 parsing.
