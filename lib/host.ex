@@ -1,5 +1,4 @@
 defmodule RFC3986.Host do
-  require Logger
   alias RFC3986.Generic, as: Generic
 
   # host          = IP-literal / IPv4address / reg-name

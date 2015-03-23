@@ -1,5 +1,4 @@
 defmodule RFC3986.Normalize do
-  require Logger
   # fragment      = *( pchar / "/" / "?" )
   def parse(state = %{error: error}) when error != nil do
     state
