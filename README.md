@@ -25,3 +25,19 @@ This project uses [ex_abnf](https://github.com/marcelog/ex_abnf) with the offici
         username: 'user'
       }
 
+
+## Using it with Mix
+
+To use it in your Mix projects, first add it as a dependency:
+
+```elixir
+def deps do
+  [{:ex_rfc3986, "~> 0.1.0"}]
+end
+```
+Then run mix deps.get to install it.
+
+## License
+The source code is released under Apache 2 License.
+
+Check [LICENSE](https://github.com/marcelog/ex_abnf/blob/master/LICENSE) file for more information.
