@@ -15,9 +15,12 @@
 ################################################################################
 defmodule RFC3986 do
   alias RFC3986.Normalize, as: Normalize
+  @moduledoc """
+  A RFC3986 compatible URI parser. Find the grammar in priv/RFC3986.txt.
+  """
 
+  @spec init() :: :ok
   def init() do
-
     :rfc3986 = :ets.new :rfc3986, [
       {:write_concurrency, false},
       {:read_concurrency, true},
@@ -30,6 +33,7 @@ defmodule RFC3986 do
   end
 
   # https://tools.ietf.org/html/rfc3986
+  @spec parse([byte]) :: nil | {[byte], [byte], Map}
   def parse(text) do
     [{:grammar, grammar}] = :ets.lookup :rfc3986, :grammar
     state = %{
