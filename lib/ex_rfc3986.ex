@@ -27,7 +27,8 @@ defmodule RFC3986 do
       :public,
       :named_table
     ]
-    grammar = ABNF.load_file "priv/RFC3986.abnf"
+    my_priv = :code.priv_dir :ex_rfc3986
+    grammar = ABNF.load_file "#{my_priv}/RFC3986.abnf"
     true = :ets.insert :rfc3986, {:grammar, grammar}
     :ok
   end
