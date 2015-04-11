@@ -3,7 +3,7 @@ RFC3986
 
 An URI parser trying to be strictly compatible with [RFC3986](https://tools.ietf.org/html/rfc3986).
 
-This project uses [ex_abnf](https://github.com/marcelog/ex_abnf) with the official [uri grammar](https://github.com/marcelog/ex_3986/blob/master/priv/RFC3986.abnf)
+This project uses [ex_abnf](https://github.com/marcelog/ex_abnf) with the official [uri grammar](https://github.com/marcelog/ex_rfc3986/blob/master/priv/RFC3986.abnf)
 
 ## Example
 
