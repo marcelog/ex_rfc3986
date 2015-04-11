@@ -8,7 +8,7 @@ This project uses [ex_abnf](https://github.com/marcelog/ex_abnf) with the offici
 ## Example
 
     iex> RFC3986.init # Call this one first to initialize the grammar.
-    iex> {_matched_uri, _not_matched_input, restul} = RFC3986.parse 'http://user:pass@elixir-lang.org:8812/docs/stable/elixir/Enum.html?k1%2A=v1&k2=v2#fragment'
+    iex> {_matched_uri, _not_matched_input, result} = RFC3986.parse 'http://user:pass@elixir-lang.org:8812/docs/stable/elixir/Enum.html?k1%2A=v1&k2=v2#fragment'
     iex> result
     %{
         fragment: 'fragment',
