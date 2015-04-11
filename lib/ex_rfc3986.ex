@@ -1,17 +1,24 @@
 defmodule RFC3986 do
-  alias RFC3986.Scheme, as: Scheme
-  alias RFC3986.Hier, as: Hier
-  alias RFC3986.Query, as: Query
-  alias RFC3986.Fragment, as: Fragment
   alias RFC3986.Normalize, as: Normalize
 
+  def init() do
+
+    :rfc3986 = :ets.new :rfc3986, [
+      {:write_concurrency, false},
+      {:read_concurrency, true},
+      :public,
+      :named_table
+    ]
+    grammar = ABNF.load_file "priv/RFC3986.abnf"
+    true = :ets.insert :rfc3986, {:grammar, grammar}
+    :ok
+  end
+
   # https://tools.ietf.org/html/rfc3986
-  #URI           = scheme ":" hier-part [ "?" query ] [ "#" fragment ]
   def parse(text) do
+    [{:grammar, grammar}] = :ets.lookup :rfc3986, :grammar
     state = %{
-      text: text,
       scheme: nil,
-      error: nil,
       type: nil,
       userinfo: nil,
       username: nil,
@@ -24,11 +31,9 @@ defmodule RFC3986 do
       fragment: nil,
       segments: []
     }
-    state |> Scheme.parse
-    |> Scheme.parse_separator
-    |> Hier.parse
-    |> Query.parse
-    |> Fragment.parse
-    |> Normalize.parse
+    case ABNF.apply grammar, "uri", text, state do
+      nil -> nil
+      {matched, rest, state} -> {matched, rest, Normalize.parse(state)}
+    end
   end
 end

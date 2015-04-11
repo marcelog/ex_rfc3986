@@ -3,11 +3,14 @@ RFC3986
 
 An URI parser trying to be strictly compatible with [RFC3986](https://tools.ietf.org/html/rfc3986).
 
+This project uses [ex_abnf](https://github.com/marcelog/ex_abnf) with the official [uri grammar](https://github.com/marcelog/ex_3986/blob/master/priv/RFC3986.abnf)
+
 ## Example
 
-    iex> RFC3986.parse 'http://user:pass@elixir-lang.org:8812/docs/stable/elixir/Enum.html?k1%2A=v1&k2=v2#fragment'
+    iex> RFC3986.init # Call this one first to initialize the grammar.
+    iex> {_matched_uri, _not_matched_input, restul} = RFC3986.parse 'http://user:pass@elixir-lang.org:8812/docs/stable/elixir/Enum.html?k1%2A=v1&k2=v2#fragment'
+    iex> result
     %{
-        error: nil,
         fragment: 'fragment',
         host: 'elixir-lang.org',
         host_type: :reg_name,
@@ -17,7 +20,6 @@ An URI parser trying to be strictly compatible with [RFC3986](https://tools.ietf
         query_string: %{'k1%2A' => 'v1', 'k2' => 'v2'},
         scheme: 'http',
         segments: ['docs', 'stable', 'elixir', 'Enum.html'],
-        text: [],
         type: :authority,
         userinfo: 'user:pass',
         username: 'user'

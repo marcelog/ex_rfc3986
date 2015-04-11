@@ -3,6 +3,10 @@ defmodule RFC3986Test do
   doctest RFC3986
   require Logger
 
+  setup do
+    RFC3986.init
+  end
+
   test "generic full" do
     assert_uri(
       'http://user:pass@elixir-lang.org:8812/docs/stable/elixir/Enum.html?k1?%2A=v1&k2=v2&k3&k4#fragment/other_fragment%2F??',
@@ -18,8 +22,7 @@ defmodule RFC3986Test do
         username: 'user',
         password: 'pass',
         query: 'k1?%2A=v1&k2=v2&k3&k4',
-        type: :authority,
-        text: ''
+        type: :authority
       }
     )
   end
@@ -29,8 +32,7 @@ defmodule RFC3986Test do
       'http:',
       %{
         scheme: 'http',
-        type: :path_empty,
-        text: ''
+        type: :path_empty
       }
     )
   end
@@ -40,7 +42,6 @@ defmodule RFC3986Test do
       'http:/',
       %{
         scheme: 'http',
-        text: '',
         type: :path_absolute
       }
     )
@@ -49,7 +50,6 @@ defmodule RFC3986Test do
       'http:/a',
       %{
         scheme: 'http',
-        text: '',
         segments: ['a'],
         type: :path_absolute
       }
@@ -61,7 +61,6 @@ defmodule RFC3986Test do
       'http:a',
       %{
         scheme: 'http',
-        text: '',
         segments: ['a'],
         type: :path_rootless
       }
@@ -98,7 +97,10 @@ defmodule RFC3986Test do
       '1::2:3:4:5:6:7',
       '1::2:3:4:5:1.2.3.4',
       '1:2:3:4:5:6:7:8',
-      '1:2:3:4:5:6:1.2.3.4'
+      '1:2:3:4:5:6:1.2.3.4',
+      'FE80:0000:0000:0000:0202:B3FF:FE1E:8329',
+      'FE80::0202:B3FF:FE1E:8329',
+      '2607:f0d0:1002:51::4'
     ], fn(host) ->
       assert_uri(
         'http://[' ++ host ++ ']:8812/docs',
@@ -108,8 +110,7 @@ defmodule RFC3986Test do
           host: host,
           port: 8812,
           segments: ['docs'],
-          type: :authority,
-          text: ''
+          type: :authority
         }
       )
     end
@@ -130,8 +131,7 @@ defmodule RFC3986Test do
         username: 'user',
         password: 'pass',
         query: 'k1%2A=v1&k2=v2',
-        type: :authority,
-        text: ''
+        type: :authority
       }
     )
   end
@@ -143,8 +143,7 @@ defmodule RFC3986Test do
         scheme: 'http',
         host_type: :ipv4,
         host: '192.168.0.1',
-        type: :authority,
-        text: ''
+        type: :authority
       }
     )
 
@@ -154,8 +153,7 @@ defmodule RFC3986Test do
         scheme: 'http',
         host_type: :ipv4,
         host: '192.168.0.1',
-        type: :authority,
-        text: ''
+        type: :authority
       }
     )
   end
@@ -175,8 +173,7 @@ defmodule RFC3986Test do
         username: 'user',
         password: 'pass',
         query: 'k1%2A=v1&k2=v2',
-        type: :authority,
-        text: ''
+        type: :authority
       }
     )
   end
@@ -187,7 +184,7 @@ defmodule RFC3986Test do
       %{
         scheme: 'http',
         host_type: :ipv_future,
-        host: '[v1.fe80::a+en1]',
+        host: 'v1.fe80::a+en1',
         port: 8812,
         segments: ['docs', 'stable', 'elixir', 'Enum.html'],
         query_string: %{'k1%2A' => 'v1', 'k2' => 'v2'},
@@ -196,8 +193,7 @@ defmodule RFC3986Test do
         username: 'user',
         password: 'pass',
         query: 'k1%2A=v1&k2=v2',
-        type: :authority,
-        text: ''
+        type: :authority
       }
     )
   end
@@ -208,7 +204,7 @@ defmodule RFC3986Test do
       %{
         scheme: 'http',
         host_type: :ipv_future,
-        host: '[v1.fe80::a+en1]',
+        host: 'v1.fe80::a+en1',
         port: 8812,
         segments: ['docs', 'stable', 'elixir', 'Enum.html'],
         query_string: %{'k1%2A' => 'v1', 'k2' => 'v2'},
@@ -217,19 +213,17 @@ defmodule RFC3986Test do
         username: nil,
         password: nil,
         query: 'k1%2A=v1&k2=v2',
-        type: :authority,
-        text: ''
+        type: :authority
       }
     )
   end
 
   defp assert_uri(uri, props) do
     Logger.debug "Testing: #{inspect uri}"
-    result = RFC3986.parse uri
+    {uri, '', result} = RFC3986.parse uri
     Logger.debug "Result: #{inspect result}"
-    nil = result.error
     Enum.each props, fn({k, v}) ->
-      Logger.debug "Asserting: #{k} = #{inspect v}"
+      Logger.debug "Asserting: #{k} = #{inspect v} and is #{inspect result[k]}"
       ^v = result[k]
     end
   end
