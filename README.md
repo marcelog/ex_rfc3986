@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/marcelog/ex_rfc396.svg)](https://travis-ci.org/marcelog/ex_rfc396)
 RFC3986
 =======
 
