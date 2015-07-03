@@ -40,12 +40,15 @@ defmodule RFC3986.Normalize do
     userinfo state, state.userinfo, []
   end
 
-  defp userinfo(state, [?:|rest], acc) do
-    %{state | username: Enum.reverse(acc), password: rest}
-  end
-
   defp userinfo(state, [char|rest], acc) do
-    userinfo state, rest, [char|acc]
+    if char == ?: || Enum.empty?(rest) do
+      if char !== ?:, do: acc = [char|acc]
+      if Enum.empty?(rest), do: rest = nil
+
+      %{state | username: Enum.reverse(acc), password: rest}
+    else
+      userinfo(state, rest, [char|acc])
+    end
   end
 
   defp query_string(state = %{query: nil}) do
