@@ -53,7 +53,7 @@ defmodule RFC3986 do
     }
     case ABNF.apply grammar, "uri", text, state do
       nil -> nil
-      {matched, rest, state} -> {matched, rest, Normalize.parse(state)}
+      {matched, _, rest, state} -> {matched, rest, Normalize.parse(state)}
     end
   end
 end

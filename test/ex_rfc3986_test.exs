@@ -275,7 +275,7 @@ defmodule RFC3986Test do
 
   defp assert_uri(uri, props) do
     Logger.debug "Testing: #{inspect uri}"
-    {uri, '', result} = RFC3986.parse uri
+    {_, _, result} = RFC3986.parse uri
     Logger.debug "Result: #{inspect result}"
     Enum.each props, fn({k, v}) ->
       Logger.debug "Asserting: #{k} = #{inspect v} and is #{inspect result[k]}"
