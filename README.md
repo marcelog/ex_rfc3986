@@ -11,7 +11,7 @@ This project uses [ex_abnf](https://github.com/marcelog/ex_abnf) with the offici
     iex> RFC3986.init # Call this one first to initialize the grammar.
     iex> {_matched_uri, _not_matched_input, result} = RFC3986.parse 'http://user:pass@elixir-lang.org:8812/docs/stable/elixir/Enum.html?k1%2A=v1&k2=v2#fragment'
     iex> result
-    %{
+    %RFC3986.Result{
         fragment: 'fragment',
         host: 'elixir-lang.org',
         host_type: :reg_name,
@@ -33,7 +33,7 @@ To use it in your Mix projects, first add it as a dependency:
 
 ```elixir
 def deps do
-  [{:ex_rfc3986, "~> 0.1.5"}]
+  [{:ex_rfc3986, "~> 0.2.0"}]
 end
 ```
 Then run mix deps.get to install it.

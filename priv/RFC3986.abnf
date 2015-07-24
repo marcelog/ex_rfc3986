@@ -17,19 +17,19 @@ relative-part = "//" authority path-abempty
               / path-empty
 
 scheme        = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." ) !!!
-  state = Map.put state, :scheme, scheme
+  state = Map.put state, :scheme, rule
   {:ok, state}
 !!!
 
 authority     = [ userinfo "@" ] host [ ":" port ]
 userinfo      = *( unreserved / pct-encoded / sub-delims / ":" ) !!!
-  state = Map.put state, :userinfo, userinfo
+  state = Map.put state, :userinfo, rule
   {:ok, state}
 !!!
 
 host          = IP-literal / IPv4address / reg-name
 port          = *DIGIT !!!
-  state = Map.put state, :port, port
+  state = Map.put state, :port, rule
   {:ok, state}
 !!!
 
@@ -37,7 +37,7 @@ IP-literal    = "[" ( IPv6address / IPvFuture  ) "]"
 
 IPvFuture     = "v" 1*HEXDIG "." 1*( unreserved / sub-delims / ":" ) !!!
   state = Map.put state, :host_type, :ipv_future
-  state = Map.put state, :host, ipvfuture
+  state = Map.put state, :host, rule
   {:ok, state}
 !!!
 
@@ -50,7 +50,7 @@ IPv6address   =                            6( h16 ":" ) ls32
               / [ *4( h16 ":" ) h16 ] "::"              ls32
               / [ *5( h16 ":" ) h16 ] "::"              h16
               / [ *6( h16 ":" ) h16 ] "::" !!!
-  state = Map.put state, :host, ipv6address
+  state = Map.put state, :host, rule
   state = Map.put state, :host_type, :ipv6
   {:ok, state}
 !!!
@@ -63,7 +63,7 @@ IPv4address =
   dec-octet "."
   dec-octet !!!
   state = Map.put state, :host_type, :ipv4
-  state = Map.put state, :host, ipv4address
+  state = Map.put state, :host, rule
   {:ok, state}
 !!!
 
@@ -75,7 +75,7 @@ dec-octet = DIGIT         ; 0-9
 
 reg-name      = *( unreserved / pct-encoded / sub-delims ) !!!
   state = Map.put state, :host_type, :reg_name
-  state = Map.put state, :host, reg_name
+  state = Map.put state, :host, rule
   {:ok, state}
 !!!
 
@@ -112,17 +112,21 @@ path-empty    = 0<pchar> !!!
 
 segment       = *pchar !!!
   segments = state.segments
-  state = Map.put state, :segments, (segments ++ [segment])
-  {:ok, state}
+  case rule do
+    [] -> {:ok, state}
+    _ ->
+      state = Map.put state, :segments, (segments ++ [rule])
+      {:ok, state}
+  end
 !!!
 segment-nz    = 1*pchar !!!
   segments = state.segments
-  state = Map.put state, :segments, Enum.reverse([segment_nz|segments])
+  state = Map.put state, :segments, Enum.reverse([rule|segments])
   {:ok, state}
 !!!
 segment-nz-nc = 1*( unreserved / pct-encoded / sub-delims / "@" ) !!!
   segments = state.segments
-  state = Map.put state, :segments, Enum.reverse([segment_nz_nc|segments])
+  state = Map.put state, :segments, Enum.reverse([rule|segments])
   {:ok, state}
 !!!
               ; non-zero-length segment without any colon ":"
@@ -130,12 +134,12 @@ segment-nz-nc = 1*( unreserved / pct-encoded / sub-delims / "@" ) !!!
 pchar         = unreserved / pct-encoded / sub-delims / ":" / "@"
 
 query         = *( pchar / "/" / "?" ) !!!
-  state = Map.put state, :query, query
+  state = Map.put state, :query, rule
   {:ok, state}
 !!!
 
 fragment      = *( pchar / "/" / "?" ) !!!
-  state = Map.put state, :fragment, fragment
+  state = Map.put state, :fragment, rule
   {:ok, state}
 !!!
 

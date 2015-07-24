@@ -17,6 +17,7 @@ defmodule RFC3986Test do
   use ExUnit.Case
   doctest RFC3986
   require Logger
+  alias RFC3986.Result, as: Res
 
   setup do
     RFC3986.init
@@ -25,7 +26,7 @@ defmodule RFC3986Test do
   test "generic full" do
     assert_uri(
       'http://user:pass@elixir-lang.org:8812/docs/stable/elixir/Enum.html?k1?%2A=v1&k2=v2&k3&k4#fragment/other_fragment%2F??',
-      %{
+      %Res{
         scheme: 'http',
         host_type: :reg_name,
         host: 'elixir-lang.org',
@@ -45,7 +46,7 @@ defmodule RFC3986Test do
   test "empty path" do
     assert_uri(
       'http:',
-      %{
+      %Res{
         scheme: 'http',
         type: :path_empty
       }
@@ -55,7 +56,7 @@ defmodule RFC3986Test do
   test "absolute path" do
     assert_uri(
       'http:/',
-      %{
+      %Res{
         scheme: 'http',
         type: :path_absolute
       }
@@ -63,7 +64,7 @@ defmodule RFC3986Test do
 
     assert_uri(
       'http:/a',
-      %{
+      %Res{
         scheme: 'http',
         segments: ['a'],
         type: :path_absolute
@@ -74,7 +75,7 @@ defmodule RFC3986Test do
   test "path rootless" do
     assert_uri(
       'http:a',
-      %{
+      %Res{
         scheme: 'http',
         segments: ['a'],
         type: :path_rootless
@@ -119,7 +120,7 @@ defmodule RFC3986Test do
     ], fn(host) ->
       assert_uri(
         'http://[' ++ host ++ ']:8812/docs',
-        %{
+        %Res{
           scheme: 'http',
           host_type: :ipv6,
           host: host,
@@ -134,7 +135,7 @@ defmodule RFC3986Test do
   test "full with domain name" do
     assert_uri(
       'http://user:pass@elixir-lang.org:8812/docs/stable/elixir/Enum.html?k1%2A=v1&k2=v2#fragment',
-      %{
+      %Res{
         scheme: 'http',
         host_type: :reg_name,
         host: 'elixir-lang.org',
@@ -154,7 +155,7 @@ defmodule RFC3986Test do
   test "ipv4" do
     assert_uri(
       'http://192.168.0.1',
-      %{
+      %Res{
         scheme: 'http',
         host_type: :ipv4,
         host: '192.168.0.1',
@@ -164,7 +165,7 @@ defmodule RFC3986Test do
 
     assert_uri(
       'http://192.168.0.1/',
-      %{
+      %Res{
         scheme: 'http',
         host_type: :ipv4,
         host: '192.168.0.1',
@@ -176,7 +177,7 @@ defmodule RFC3986Test do
   test "full with ipv4" do
     assert_uri(
       'http://user:pass@192.168.0.1:8812/docs/stable/elixir/Enum.html?k1%2A=v1&k2=v2#fragment',
-      %{
+      %Res{
         scheme: 'http',
         host_type: :ipv4,
         host: '192.168.0.1',
@@ -196,7 +197,7 @@ defmodule RFC3986Test do
   test "full with ipv future" do
     assert_uri(
       'http://user:pass@[v1.fe80::a+en1]:8812/docs/stable/elixir/Enum.html?k1%2A=v1&k2=v2#fragment',
-      %{
+      %Res{
         scheme: 'http',
         host_type: :ipv_future,
         host: 'v1.fe80::a+en1',
@@ -216,7 +217,7 @@ defmodule RFC3986Test do
   test "no user info" do
     assert_uri(
       'http://[v1.fe80::a+en1]:8812/docs/stable/elixir/Enum.html?k1%2A=v1&k2=v2#fragment',
-      %{
+      %Res{
         scheme: 'http',
         host_type: :ipv_future,
         host: 'v1.fe80::a+en1',
@@ -236,7 +237,7 @@ defmodule RFC3986Test do
   test "ssh without pass" do
     assert_uri(
       'ssh://user@elixir-lang.org:8812/docs/stable/elixir/Enum.html?k1?%2A=v1&k2=v2&k3&k4#fragment/other_fragment%2F??',
-      %{
+      %Res{
         scheme: 'ssh',
         host_type: :reg_name,
         host: 'elixir-lang.org',
@@ -256,7 +257,7 @@ defmodule RFC3986Test do
   test "ssh with pass" do
     assert_uri(
       'ssh://user:pass@elixir-lang.org:8812/docs/stable/elixir/Enum.html?k1?%2A=v1&k2=v2&k3&k4#fragment/other_fragment%2F??',
-      %{
+      %Res{
         scheme: 'ssh',
         host_type: :reg_name,
         host: 'elixir-lang.org',
@@ -273,13 +274,9 @@ defmodule RFC3986Test do
     )
   end
 
-  defp assert_uri(uri, props) do
+  defp assert_uri(uri, result) do
     Logger.debug "Testing: #{inspect uri}"
-    {_, _, result} = RFC3986.parse uri
-    Logger.debug "Result: #{inspect result}"
-    Enum.each props, fn({k, v}) ->
-      Logger.debug "Asserting: #{k} = #{inspect v} and is #{inspect result[k]}"
-      ^v = result[k]
-    end
+    {_, _, r} = RFC3986.parse uri
+    assert result === r
   end
 end
