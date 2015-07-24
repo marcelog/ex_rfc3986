@@ -2,7 +2,7 @@ defmodule RFC3986 do
   alias RFC3986.Normalize, as: Normalize
   @moduledoc """
   Main module. [A RFC3986](https://tools.ietf.org/html/rfc3986) compatible URI
-  parser. Find the grammar in priv/RFC3986.txt.
+  parser. Find the grammar in priv/RFC3986.abnf.
 
       Copyright 2015 Marcelo Gornstein <marcelog@gmail.com>
 
