@@ -14,13 +14,26 @@
 # limitations under the License.
 ################################################################################
 defmodule RFC3986Test do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   doctest RFC3986
   require Logger
   alias RFC3986.Result, as: Res
 
-  setup do
-    RFC3986.init
+  @on_load :init
+
+  def init do
+    me = self
+    spawn fn ->
+      RFC3986.init
+      send me, :done
+      receive do
+        _ -> :ok
+      end
+    end
+    receive do
+      :done -> :ok
+    end
+    :ok
   end
 
   test "generic full" do
