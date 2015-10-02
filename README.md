@@ -33,7 +33,7 @@ To use it in your Mix projects, first add it as a dependency:
 
 ```elixir
 def deps do
-  [{:ex_rfc3986, "~> 0.2.3"}]
+  [{:ex_rfc3986, "~> 0.2.4"}]
 end
 ```
 Then run mix deps.get to install it.
