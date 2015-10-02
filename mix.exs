@@ -36,7 +36,7 @@ defmodule RFC3986.Mixfile do
   defp package do
     [
       files: ["lib", "mix.exs", "README*", "LICENSE*", "priv"],
-      mantainers: ["Marcelo Gornstein"],
+      maintainers: ["Marcelo Gornstein"],
       licenses: ["Apache 2.0"],
       links: %{
         "GitHub" => "https://github.com/marcelog/ex_rfc3986"
