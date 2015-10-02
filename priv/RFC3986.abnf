@@ -17,18 +17,24 @@ relative-part = "//" authority path-abempty
               / path-empty
 
 scheme        = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." ) !!!
+  _ = string_values
+  _ = values
   state = Map.put state, :scheme, rule
   {:ok, state}
 !!!
 
 authority     = [ userinfo "@" ] host [ ":" port ]
 userinfo      = *( unreserved / pct-encoded / sub-delims / ":" ) !!!
+  _ = string_values
+  _ = values
   state = Map.put state, :userinfo, rule
   {:ok, state}
 !!!
 
 host          = IP-literal / IPv4address / reg-name
 port          = *DIGIT !!!
+  _ = string_values
+  _ = values
   state = Map.put state, :port, rule
   {:ok, state}
 !!!
@@ -36,6 +42,8 @@ port          = *DIGIT !!!
 IP-literal    = "[" ( IPv6address / IPvFuture  ) "]"
 
 IPvFuture     = "v" 1*HEXDIG "." 1*( unreserved / sub-delims / ":" ) !!!
+  _ = string_values
+  _ = values
   state = Map.put state, :host_type, :ipv_future
   state = Map.put state, :host, rule
   {:ok, state}
@@ -50,6 +58,8 @@ IPv6address   =                            6( h16 ":" ) ls32
               / [ *4( h16 ":" ) h16 ] "::"              ls32
               / [ *5( h16 ":" ) h16 ] "::"              h16
               / [ *6( h16 ":" ) h16 ] "::" !!!
+  _ = string_values
+  _ = values
   state = Map.put state, :host, rule
   state = Map.put state, :host_type, :ipv6
   {:ok, state}
@@ -62,6 +72,8 @@ IPv4address =
   dec-octet "."
   dec-octet "."
   dec-octet !!!
+  _ = string_values
+  _ = values
   state = Map.put state, :host_type, :ipv4
   state = Map.put state, :host, rule
   {:ok, state}
@@ -74,6 +86,8 @@ dec-octet = DIGIT         ; 0-9
   / "25" %x30-35          ; 250-255
 
 reg-name      = *( unreserved / pct-encoded / sub-delims ) !!!
+  _ = string_values
+  _ = values
   state = Map.put state, :host_type, :reg_name
   state = Map.put state, :host, rule
   {:ok, state}
@@ -86,31 +100,48 @@ path          = path-abempty    ; begins with "/" or is empty
               / path-empty      ; zero characters
 
 path-abempty  = *( "/" segment ) !!!
+  _ = string_values
+  _ = values
+  _ = rule
   state = Map.put state, :type, :authority
   {:ok, state}
 !!!
 
 path-absolute = "/" [ segment-nz *( "/" segment ) ] !!!
+  _ = string_values
+  _ = values
+  _ = rule
   state = Map.put state, :type, :path_absolute
   {:ok, state}
 !!!
 
 path-noscheme = segment-nz-nc *( "/" segment ) !!!
+  _ = string_values
+  _ = values
+  _ = rule
   state = Map.put state, :type, :noscheme
   {:ok, state}
 !!!
 
 path-rootless = segment-nz *( "/" segment ) !!!
+  _ = string_values
+  _ = values
+  _ = rule
   state = Map.put state, :type, :path_rootless
   {:ok, state}
 !!!
 
 path-empty    = 0<pchar> !!!
+  _ = string_values
+  _ = values
+  _ = rule
   state = Map.put state, :type, :path_empty
   {:ok, state}
 !!!
 
 segment       = *pchar !!!
+  _ = string_values
+  _ = values
   segments = state.segments
   case rule do
     [] -> {:ok, state}
@@ -120,11 +151,15 @@ segment       = *pchar !!!
   end
 !!!
 segment-nz    = 1*pchar !!!
+  _ = string_values
+  _ = values
   segments = state.segments
   state = Map.put state, :segments, Enum.reverse([rule|segments])
   {:ok, state}
 !!!
 segment-nz-nc = 1*( unreserved / pct-encoded / sub-delims / "@" ) !!!
+  _ = string_values
+  _ = values
   segments = state.segments
   state = Map.put state, :segments, Enum.reverse([rule|segments])
   {:ok, state}
@@ -134,12 +169,16 @@ segment-nz-nc = 1*( unreserved / pct-encoded / sub-delims / "@" ) !!!
 pchar         = unreserved / pct-encoded / sub-delims / ":" / "@"
 
 query         = *( pchar / "/" / "?" ) !!!
+  _ = string_values
+  _ = values
   state = Map.put state, :query, rule
   {:ok, state}
 !!!
 
 fragment      = *( pchar / "/" / "?" ) !!!
-  state = Map.put state, :fragment, rule
+    _ = string_values
+  _ = values
+state = Map.put state, :fragment, rule
   {:ok, state}
 !!!
 
