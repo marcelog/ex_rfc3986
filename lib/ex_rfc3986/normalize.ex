@@ -47,9 +47,16 @@ defmodule RFC3986.Normalize do
 
   defp userinfo(state, [char|rest], acc) do
     if char == ?: || Enum.empty?(rest) do
-      if char !== ?:, do: acc = [char|acc]
-      if Enum.empty?(rest), do: rest = nil
-
+      acc = if char !== ?: do
+        [char|acc]
+      else
+        acc
+      end
+      rest = if Enum.empty?(rest) do
+        nil
+      else
+        rest
+      end
       %{state | username: Enum.reverse(acc), password: rest}
     else
       userinfo(state, rest, [char|acc])
