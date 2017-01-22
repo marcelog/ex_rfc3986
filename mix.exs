@@ -4,12 +4,12 @@ defmodule RFC3986.Mixfile do
   def project do
     [app: :ex_rfc3986,
      name: "ex_rfc3986",
-     version: "0.2.8",
+     version: "0.3.0",
      source_url: "https://github.com/marcelog/ex_rfc3986",
      elixir: ">= 1.0.0",
-     description: description,
-     package: package,
-     deps: deps]
+     description: description(),
+     package: package(),
+     deps: deps()]
   end
 
   # Configuration for the OTP application
@@ -27,9 +27,9 @@ defmodule RFC3986.Mixfile do
 
   defp deps do
     [
-      {:ex_abnf, "~> 0.2.8"},
-      {:earmark, "~> 0.2.1", only: :dev},
-      {:ex_doc, "~> 0.12.0", only: :dev}
+      {:ex_abnf, "~> 0.3.0"},
+      {:earmark, "~> 1.0.3", only: :dev},
+      {:ex_doc, "~> 0.14.5", only: :dev}
     ]
   end
 
